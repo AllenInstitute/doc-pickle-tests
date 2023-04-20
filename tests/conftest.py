@@ -1,5 +1,4 @@
 import pytest
-import os
 import glob
 
 from . import resolve_env_var, load_extended_trials_df, load_pickle
