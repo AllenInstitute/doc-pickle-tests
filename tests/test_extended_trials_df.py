@@ -10,15 +10,28 @@ def has_response_within_window(change_time, lick_times, response_window):
 
 
 def test_response_types(raw, extended_trials_df):
-    response_window_lower, response_window_upper = raw[
-        "items"]["behavior"]["params"]["response_window"]
-    print(response_window_lower)
-    print(response_window_upper)
-    for _, row in extended_trials_df.iterrows():
-        print(row["trial_type"])
-        print(row["response_type"])
-        print(row["lick_times"])
-        print(row["change_time"])
-        print(row)
-        break
-    raise Exception("bur")
+    response_window = raw["items"]["behavior"]["params"]["response_window"]
+    for idx, row in extended_trials_df.iterrows():
+        trial_type = row["trial_type"]
+        change_time = row["change_time"]
+        lick_times = row["lick_times"]
+        response_type = row["response_type"]
+        if trial_type == "aborted":
+            assert has_response_before_window(change_time, lick_times, response_window), \
+                f"Aborted trial doesnt have early response. trial index: {idx}"
+        elif trial_type == "autorewarded":
+            pass
+        elif trial_type == "go":
+            assert not has_response_before_window(change_time, lick_times, response_window), \
+                f"Non-aborted go trial has early response. trial index: {idx}"
+            if response_type == "HIT":
+                assert has_response_within_window(change_time, lick_times, response_window), \
+                    f"Non-aborted go trial has response_type == 'HIT' but doesnt have response within window. trial index: {idx}"
+        elif trial_type == "catch":
+            assert not has_response_before_window(change_time, lick_times, response_window), \
+                f"Non-aborted catch has early response. trial index: {idx}"
+            if response_type == "FA":
+                assert has_response_within_window(change_time, lick_times, response_window), \
+                    f"Non-aborted catch trial with response within window not marked as false alarm. trial index: {idx}"
+        else:
+            raise Exception("Unexpected trial_type=%s" % trial_type)
