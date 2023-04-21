@@ -1,13 +1,12 @@
 import argparse
-import pandas as pd
 import os
 import pickle
 import copy
 from typing import Dict
 
-from visual_behavior.translator.core import create_extended_dataframe
-from visual_behavior.schemas.extended_trials import ExtendedTrialSchema
-from visual_behavior.translator import foraging2
+# from visual_behavior.translator.core import create_extended_dataframe
+# from visual_behavior.schemas.extended_trials import ExtendedTrialSchema
+# from visual_behavior.translator import foraging2
 
 
 def is_pseudo_catch(trial: Dict) -> bool:

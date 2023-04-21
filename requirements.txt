@@ -1,12 +1,6 @@
-requests
 pytest
-pytest-ordering
-psycopg2
-pyyaml==5.4.1
 pandas
 numpy
-h5py
-sqlalchemy
 # installs the visual behavior package from a specific git commit
 # which is v0.6.0dev0
 git+https://github.com/AllenInstitute/visual_behavior_analysis.git@60bc22b238948e86517972821433a9272ad5d025#egg=visual_behavior
