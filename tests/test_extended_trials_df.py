@@ -20,10 +20,9 @@ def test_response_types(raw, extended_trials_df):
         lick_times = row["lick_times"]
         response_type = row["response_type"]
         if trial_type == "aborted":
-            print(np.isnan(change_time))
-            print(row)
-            assert has_response_before_window(change_time, lick_times, response_window), \
-                f"Aborted trial doesnt have early response. trial index: {idx}"
+            if not np.isnan(change_time):  # change_time is nan if change never occurred
+                assert has_response_before_window(change_time, lick_times, response_window), \
+                    f"Aborted trial doesnt have early response. trial index: {idx}"
         elif trial_type == "autorewarded":
             pass
         elif trial_type == "go":
