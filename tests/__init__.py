@@ -37,3 +37,12 @@ def load_extended_trials_df(raw: typing.Dict) -> pd.DataFrame:
         licks=core_data['licks'],
         time=core_data['time'],
     )
+
+
+def encode_image_name(image_name: str, contrast: int) -> str:
+    return f"{image_name}-{contrast}"
+
+
+def get_initial_image(data: dict) -> str:
+    initial_params = data["items"]["behavior"]["params"]["initial_image_params"]
+    return encode_image_name(initial_params["Image"], initial_params["contrast"])
