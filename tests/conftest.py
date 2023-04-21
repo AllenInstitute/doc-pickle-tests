@@ -13,7 +13,7 @@ pickles = glob.glob(pickle_search_pattern)
 
 @pytest.fixture(scope="session", params=pickles)
 def raw(request):
-    return load_pickle(request)
+    return load_pickle(request.param)
 
 
 @pytest.fixture(scope="session")
