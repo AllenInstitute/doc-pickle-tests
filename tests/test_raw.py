@@ -3,17 +3,19 @@ from . import get_initial_image
 
 def test_go_trials_have_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
-        assert trial["catch"] is False and len(trial["stimulus_changes"]) > 0
+        assert trial["trial_params"]["catch"] is False and len(
+            trial["stimulus_changes"]) > 0
 
 
 def test_catch_trials_have_no_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
-        assert trial["catch"] is True and len(trial["stimulus_changes"]) < 1
+        assert trial["trial_params"]["catch"] is True and len(
+            trial["stimulus_changes"]) < 1
 
 
 def test_autorewarded_trials_have_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
-        assert trial["auto_reward"] is True and len(
+        assert trial["trial_params"]["auto_reward"] is True and len(
             trial["stimulus_changes"]) > 0
 
 
