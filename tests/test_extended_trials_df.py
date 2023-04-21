@@ -17,6 +17,8 @@ def test_response_types(raw, extended_trials_df):
         lick_times = row["lick_times"]
         response_type = row["response_type"]
         if trial_type == "aborted":
+            print(change_time)
+            print(row)
             assert has_response_before_window(change_time, lick_times, response_window), \
                 f"Aborted trial doesnt have early response. trial index: {idx}"
         elif trial_type == "autorewarded":
