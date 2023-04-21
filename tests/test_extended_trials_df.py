@@ -1,7 +1,6 @@
 def test_response_types(raw, extended_trials_df):
-    response_window = raw["items"]["behavior"]["params"]["response_window"]
-    response_window_lower = response_window[0] * 1000  # convert to seconds
-    response_window_upper = response_window[1] * 1000  # convert to seconds
+    response_window_lower, response_window_upper = raw[
+        "items"]["behavior"]["params"]["response_window"]
     print(response_window_lower)
     print(response_window_upper)
     for _, row in extended_trials_df.iterrows():
@@ -11,3 +10,4 @@ def test_response_types(raw, extended_trials_df):
         print(row["change_time"])
         print(row)
         break
+    raise Exception("bur")
