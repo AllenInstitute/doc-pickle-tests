@@ -25,16 +25,16 @@ def list_to_contiguous_pairs(l):
         yield l[i:i+2]
 
 
-def encode_image_name(image_name, contrast):
+def encode_image_name(image_name: str, contrast: int) -> str:
     return f"{image_name}-{contrast}"
 
 
-def get_initial_image(data: dict) -> str:
+def get_initial_image(data: Dict) -> str:
     initial_params = data["items"]["behavior"]["params"]["initial_image_params"]
     return encode_image_name(initial_params["Image"], initial_params["contrast"])
 
 
-def fix_faux_catch_trial(trial):
+def fix_faux_catch_trial(trial: Dict) -> Dict:
     fixed = copy.deepcopy(trial)
     fixed["trial_params"]["catch"] = False
     fixed_events = []
@@ -54,7 +54,7 @@ def fix_faux_catch_trial(trial):
     return fixed
 
 
-def fix_faux_go_trial(trial):
+def fix_faux_go_trial(trial: Dict) -> Dict:
     fixed = copy.deepcopy(trial)
     fixed["trial_params"]["catch"] = True
     fixed["events"] = list(filter(lambda event: event[0] !=
@@ -65,7 +65,7 @@ def fix_faux_go_trial(trial):
     return fixed
 
 
-def overwrite_prev_image(trial, new_image):
+def overwrite_prev_image(trial: Dict, new_image: str) -> None:
     """mutates object passed in
     """
     stimulus_change = trial["stimulus_changes"][0]
@@ -73,7 +73,7 @@ def overwrite_prev_image(trial, new_image):
         (new_image, new_image, ), stimulus_change[1], stimulus_change[2], stimulus_change[3])
 
 
-def fix_trials_initial_image(data):
+def fix_trials_initial_image(data: Dict) -> Dict:
     fixed = copy.deepcopy(data)
     prev = get_initial_image(data)
     for trial in fixed["items"]["behavior"]["trial_log"]:
@@ -87,7 +87,7 @@ def fix_trials_initial_image(data):
     return fixed
 
 
-def fix_images(data: dict) -> dict:
+def fix_images(data: Dict) -> Dict:
     fixed = copy.deepcopy(data)
     images_params = fixed["items"]["behavior"]["stimuli"].pop("images-params")
     fixed["items"]["behavior"]["stimuli"]["images"] = images_params
@@ -139,7 +139,7 @@ def fix_images(data: dict) -> dict:
     return fixed
 
 
-def fix_trials(data):
+def fix_trials(data: Dict) -> Dict:
     fixed = copy.deepcopy(data)
     fixed_images = fix_images(fixed)
     fixed_trial_log = []
@@ -162,7 +162,7 @@ def fix_trials(data):
     return fixed_images
 
 
-def fix_behavior_pickle(pickle_path, output_dir):
+def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     with open(pickle_path, "rb") as f:
         data = pickle.load(f, encoding="latin1")
 
