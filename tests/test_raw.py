@@ -1,31 +1,6 @@
 from . import get_initial_image
 
 
-# to test loading
-# def one(x):
-#     assert len(x) == 1
-#     if isinstance(x, set):
-#         return list(x)[0]
-#     else:
-#         return x[0]
-
-
-# def load_behavior_pickle(foraging_file_name):
-#     data = pd.read_pickle(foraging_file_name)
-#     core_data = foraging2.data_to_change_detection_core(data)
-
-#     df = create_extended_dataframe(
-#         trials=core_data['trials'], metadata=core_data['metadata'], licks=core_data['licks'], time=core_data['time'],)
-
-#     behavior_session_uuid = one(df['behavior_session_uuid'].unique())
-
-#     ets = ExtendedTrialSchema()
-#     data_list_cs = df.to_dict('records')
-#     data_list_cs_sc = ets.dump(data_list_cs, many=True)
-#     data_package_cs = json.dumps({'data_list': data_list_cs_sc})
-#     return data_package_cs
-
-
 def test_go_trials_have_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         assert trial["trial_params"]["catch"] is False and len(
