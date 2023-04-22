@@ -15,10 +15,16 @@ def has_response_within_window(change_time, lick_times, response_window):
 def test_response_types(raw, extended_trials_df):
     response_window = raw["items"]["behavior"]["params"]["response_window"]
     for idx, row in extended_trials_df.iterrows():
+        raw_log = raw["items"]["behavior"]["trial_log"][idx]
         trial_type = row["trial_type"]
         change_time = row["change_time"]
         lick_times = row["lick_times"]
         response_type = row["response_type"]
+        licks_enabled = raw_log["licks_enabled"]
+        if licks_enabled is False:
+            # these assertions dont make sense if licks are disabled
+            continue
+
         if trial_type == "aborted":
             if not np.isnan(change_time):  # change_time is nan if change never occurred
                 assert has_response_before_window(change_time, lick_times, response_window), \
