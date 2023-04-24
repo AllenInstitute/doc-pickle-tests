@@ -5,11 +5,6 @@ def has_early_response(change_time, lick_times):
     return len(list(filter(lambda value: value < change_time, lick_times))) > 0
 
 
-def has_response_before_window(change_time, lick_times, response_window):
-    response_window_lower = change_time + response_window[0]
-    return len(list(filter(lambda value: value < response_window_lower, lick_times))) > 0
-
-
 def has_response_within_window(change_time, lick_times, response_window):
     response_window_lower = change_time + response_window[0]
     response_window_upper = change_time + response_window[1]

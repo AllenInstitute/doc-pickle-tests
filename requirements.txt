@@ -1,4 +1,5 @@
 pytest
+pytest-reportlog
 pandas
 numpy
 # installs the visual behavior package from a specific git commit
