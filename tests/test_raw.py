@@ -4,19 +4,22 @@ from . import get_initial_image
 def test_go_trials_have_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         assert trial["trial_params"]["catch"] is False and len(
-            trial["stimulus_changes"]) > 0
+            trial["stimulus_changes"]) > 0, \
+            f"Go trial doesnt have stimulus changes. trial index: {trial['index']}"
 
 
 def test_catch_trials_have_no_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         assert trial["trial_params"]["catch"] is True and len(
-            trial["stimulus_changes"]) < 1
+            trial["stimulus_changes"]) < 1, \
+            f"Catch trial has stimulus changes. trial index: {trial['index']}"
 
 
 def test_autorewarded_trials_have_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         assert trial["trial_params"]["auto_reward"] is True and len(
-            trial["stimulus_changes"]) > 0
+            trial["stimulus_changes"]) > 0, \
+            f"Autorewarded trial doesnt have stimulus changes. trial index: {trial['index']}"
 
 
 def test_image_sequence(raw):
