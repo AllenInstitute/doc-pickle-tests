@@ -9,9 +9,10 @@ setup_image:
 	docker build --no-cache -t doc-pickle-tests .
 
 check_mtrain_api_env_vars:
-	$(call check_defined, DOC_PICKLE_DIR)
+	$(call check_defined, PICKLE_SEARCH_PATTERN)
 
 run_tests: check_mtrain_api_env_vars
 	docker run --network="host" \
 	-v ${PWD}/tests:/tests \
+	-e PICKLE_SEARCH_PATTERN=${PICKLE_SEARCH_PATTERN}
 	doc-pickle-tests pytest /tests -vv --cache-clear

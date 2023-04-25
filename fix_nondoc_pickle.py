@@ -189,4 +189,5 @@ if __name__ == "__main__":
 
     fixed_pickle_path = fix_behavior_pickle(
         args.target_pickle, args.output_dir)
+
     print("Fixed pickle saved to: %s" % fixed_pickle_path)
