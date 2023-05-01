@@ -1,4 +1,3 @@
-import argparse
 import os
 import pickle
 import copy
@@ -187,6 +186,10 @@ if __name__ == "__main__":
     parser.add_argument("output_dir", type=str)
 
     args = parser.parse_args()
+
+    if not os.path.isdir(args.output_dir):
+        os.mkdir(args.output_dir)
+        print("Created output dir at: %s" % args.output_dir)
 
     for target_pickle in glob.glob(args.pickle_search_pattern):
         fixed_pickle_path = fix_behavior_pickle(
