@@ -180,14 +180,16 @@ def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
 
 if __name__ == "__main__":
     import argparse
+    import glob
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("target_pickle", type=str)
+    parser.add_argument("pickle_search_pattern", type=str)
     parser.add_argument("output_dir", type=str)
 
     args = parser.parse_args()
 
-    fixed_pickle_path = fix_behavior_pickle(
-        args.target_pickle, args.output_dir)
+    for target_pickle in glob.glob(args.pickle_search_pattern):
+        fixed_pickle_path = fix_behavior_pickle(
+            target_pickle, args.output_dir)
 
-    print("Fixed pickle saved to: %s" % fixed_pickle_path)
+        print("Fixed pickle saved to: %s" % fixed_pickle_path)
