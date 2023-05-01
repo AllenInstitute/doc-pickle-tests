@@ -188,6 +188,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not os.path.isdir(args.output_dir):
+        if os.path.exists(args.output_dir):
+            raise Exception(
+                "Output directory path exists but isnt a directory. output_dir=%s" % args.output_dir)
         os.mkdir(args.output_dir)
         print("Created output dir at: %s" % args.output_dir)
 
