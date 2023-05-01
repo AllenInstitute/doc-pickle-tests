@@ -1,1 +1,1 @@
-pytest ./tests -vv --cache-clear
+pytest ./tests -vv --cache-clear --junitxml=bur.xml
