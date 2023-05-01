@@ -195,7 +195,9 @@ if __name__ == "__main__":
         print("Created output dir at: %s" % args.output_dir)
 
     for target_pickle in glob.glob(args.pickle_search_pattern):
-        fixed_pickle_path = fix_behavior_pickle(
-            target_pickle, args.output_dir)
-
-        print("Fixed pickle saved to: %s" % fixed_pickle_path)
+        try:
+            fixed_pickle_path = fix_behavior_pickle(
+                target_pickle, args.output_dir)
+            print("Fixed pickle saved to: %s" % fixed_pickle_path)
+        except Exception as e:
+            print("Failed to fix pickle. target=%s: %s" % (target_pickle, e, ))
