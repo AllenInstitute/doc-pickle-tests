@@ -225,10 +225,13 @@ if __name__ == "__main__":
     target_pickles = []
     for output_dir in output_dirs:
         pattern = glob.glob(output_dir + "/*.behavior.pkl")
-        print(pattern)
         pickles = list(glob.glob(output_dir + "/*.behavior.pkl"))
         if len(pickles) > 1:
-            raise Exception("More than one pickle detected in output dir: %s" % output_dir)
+            logger.error("More than one pickle detected in output dir: %s" % output_dir)
+        elif not len(pickles) > 0:
+            logger.error("No pickles in directory: %s" % output_dir)
+            continue
+        
         target_pickles.append(pickles[0])
 
     if not os.path.isdir(args.output_dir):
