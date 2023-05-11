@@ -22,6 +22,9 @@ def is_faux_go(trial: Dict, prev_image_name: str) -> bool:
     if trial["trial_params"]["catch"] is True:
         return False
     
+    if len(trial["stimulus_changes"]) < 1:
+        return False
+
     if trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]:
         return False
     
