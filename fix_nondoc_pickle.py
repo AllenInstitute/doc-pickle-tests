@@ -183,7 +183,7 @@ def fix_trials(data: Dict) -> Dict:
         else:
             fixed_trial_log.append(trial)
 
-        if len(fixed_trial_log) > 0:  # in the weird situation where the first trial in a "success" is None trial
+        if len(fixed_trial_log) > 0 and len(fixed_trial_log[-1]["stimulus_changes"]) > 0:  # in the weird situation where the first trial in a "success" is None trial
             prev_image_name = fixed_trial_log[-1]["stimulus_changes"][0][1][0]
 
     fixed_images["items"]["behavior"]["trial_log"] = fixed_trial_log
