@@ -18,7 +18,7 @@ def test_catch_trials_have_no_changes(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         if trial["trial_params"]["catch"] is True and \
                 len(trial["stimulus_changes"]) < 1 and \
-                trial["stimulus_changes"][0][0][0] == trial["stimulus_changes"][0][1][0]:  # stimulus change is to same stim, which is good
+                trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]:  # catch trials with stimulus changes to different stim is bad
             bad_trial_indices.append(trial["index"])
 
     assert len(bad_trial_indices) < 1, \
