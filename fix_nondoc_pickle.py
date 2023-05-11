@@ -166,7 +166,8 @@ def fix_trials(data: Dict) -> Dict:
     fixed = copy.deepcopy(data)
     fixed_images = fix_images(fixed)
     fixed_trial_log = []
-    prev_image_name = fixed_images["items"]["behavior"]["trial_log"][0]["stimulus_changes"][0][0][0]
+    initial_image_params = fixed["items"]["behavior"]["params"]["initial_image_params"]
+    prev_image_name = encode_image_name(initial_image_params["Image"], initial_image_params["contrast"])
     for trial in fixed_images["items"]["behavior"]["trial_log"]:
         if trial["success"] is None:
             pass
