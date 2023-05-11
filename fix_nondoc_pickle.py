@@ -2,21 +2,30 @@ import os
 import pickle
 import copy
 from typing import Dict
-
-# from visual_behavior.translator.core import create_extended_dataframe
-# from visual_behavior.schemas.extended_trials import ExtendedTrialSchema
-# from visual_behavior.translator import foraging2
+import logging
+import uuid
 
 
-def is_pseudo_catch(trial: Dict) -> bool:
+logger = logging.getLogger(__name__)
+
+transaction_log_path = f"{str(uuid.uuid4())}.log"
+logger.addHandler(logging.FileHandler(transaction_log_path))
+
+
+def is_faux_catch(trial: Dict) -> bool:
     return trial["trial_params"]["catch"] is True and \
         len(trial["stimulus_changes"]
             ) > 0 and trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]
 
 
-def is_pseudo_go(trial: Dict) -> bool:
-    return trial["trial_params"]["catch"] is False and \
-        len(trial["stimulus_changes"]) < 1
+def is_faux_go(trial: Dict, prev_image_name: str) -> bool:
+    if trial["trial_params"]["catch"] is True:
+        return False
+    
+    if trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]:
+        return False
+    
+    return trial["stimulus_changes"][0][1][0] == prev_image_name
 
 
 def list_to_contiguous_pairs(l):
@@ -38,8 +47,12 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
     fixed["trial_params"]["catch"] = False
     fixed_events = []
     for event in fixed["events"]:
-        if event[0] in ["no_lick", "sham_change"]:
-            pass
+        if event[0] == "sham_change":
+            event[0] = "change"
+            fixed_events.append(event)
+        elif event[0] == "correct_reject":
+            event[0] = "miss"
+            fixed_events.append(event)
         elif event[0] == "false_alarm":
             event[0] = "hit"
             fixed_events.append(event)
@@ -48,6 +61,7 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
                     filter(lambda event: event[0] == "auto_reward", fixed["events"]))) == 0
         else:
             fixed_events.append(event)
+    
     fixed["events"] = fixed_events
 
     return fixed
@@ -56,11 +70,25 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
 def fix_faux_go_trial(trial: Dict) -> Dict:
     fixed = copy.deepcopy(trial)
     fixed["trial_params"]["catch"] = True
-    fixed["events"] = list(filter(lambda event: event[0] !=
-                           "early_response", fixed["events"]))  # remove early response
-    # remove early response
-    fixed["events"] = list(
-        filter(lambda event: event[0] != "abort", fixed["events"]))
+    fixed_events = []
+    for event in fixed["events"]:
+        if event[0] == "change":
+            event[0] = "sham_change"
+        elif event[0] == "miss":
+            event[0] = "correct_reject"
+        elif event[0] == "hit":
+            event[0] = "false_alarm"
+        else:
+            pass
+        fixed_events.append(event)
+    
+    # fixed["events"] = list(filter(lambda event: event[0] !=
+    #                        "early_response", fixed["events"]))  # remove early response
+    # fixed["events"] = list(
+    #     filter(lambda event: event[0] != "abort", fixed["events"]))  # remove aborts
+    
+    fixed["events"] = fixed_events
+    
     return fixed
 
 
@@ -142,19 +170,25 @@ def fix_trials(data: Dict) -> Dict:
     fixed = copy.deepcopy(data)
     fixed_images = fix_images(fixed)
     fixed_trial_log = []
+    prev_image_name = fixed_images["items"]["behavior"]["trial_log"][0]["stimulus_changes"][0][0][0]
     for trial in fixed_images["items"]["behavior"]["trial_log"]:
         if trial["success"] is None:
             pass
-        elif is_pseudo_go(trial):
+        elif is_faux_go(trial, prev_image_name):
             fixed_trial_log.append(
                 fix_faux_go_trial(trial)
             )
-        elif is_pseudo_catch(trial):
+            logger.info("Fixed faux go trial at: %s" % trial["index"])
+        elif is_faux_catch(trial):
             fixed_trial_log.append(
                 fix_faux_catch_trial(trial)
             )
+            logger.info("Fixed faux catch trial at: %s" % trial["index"])
         else:
             fixed_trial_log.append(trial)
+
+        if len(fixed_trial_log) > 0:  # in the weird situation where the first trial in a "success" is None trial
+            prev_image_name = fixed_trial_log[-1]["stimulus_changes"][0][1][0]
 
     fixed_images["items"]["behavior"]["trial_log"] = fixed_trial_log
 
@@ -164,7 +198,8 @@ def fix_trials(data: Dict) -> Dict:
 def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     with open(pickle_path, "rb") as f:
         data = pickle.load(f, encoding="latin1")
-
+    
+    logger.info("Fixing pickle at: %s" % pickle_path)
     fixed = fix_trials(data)
 
     output_path = os.path.join(
