@@ -4,7 +4,7 @@ import glob
 from . import load_dotenv, resolve_env_var, load_extended_trials_df, load_pickle
 
 
-load_dotenv("./tests/.env")
+# load_dotenv("./tests/.env")
 
 pickle_search_pattern_var_name = "PICKLE_SEARCH_PATTERN"
 pickle_search_pattern = resolve_env_var(pickle_search_pattern_var_name)
