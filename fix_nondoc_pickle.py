@@ -49,18 +49,16 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
     for event in fixed["events"]:
         if event[0] == "sham_change":
             event[0] = "change"
-            fixed_events.append(event)
         elif event[0] == "correct_reject":
             event[0] = "miss"
-            fixed_events.append(event)
         elif event[0] == "false_alarm":
             event[0] = "hit"
-            fixed_events.append(event)
             fixed["has_omitted_reward"] = len(fixed["rewards"]) > 0 and \
                 len(list(
                     filter(lambda event: event[0] == "auto_reward", fixed["events"]))) == 0
         else:
-            fixed_events.append(event)
+            pass
+        fixed_events.append(event)
     
     fixed["events"] = fixed_events
 
@@ -81,11 +79,6 @@ def fix_faux_go_trial(trial: Dict) -> Dict:
         else:
             pass
         fixed_events.append(event)
-    
-    # fixed["events"] = list(filter(lambda event: event[0] !=
-    #                        "early_response", fixed["events"]))  # remove early response
-    # fixed["events"] = list(
-    #     filter(lambda event: event[0] != "abort", fixed["events"]))  # remove aborts
     
     fixed["events"] = fixed_events
     
