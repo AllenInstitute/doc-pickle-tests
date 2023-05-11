@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 transaction_log_path = f"{str(uuid.uuid4())}.log"
 logger.addHandler(logging.FileHandler(transaction_log_path))
-
+logger.setLevel(logging.DEBUG)
 
 def is_faux_catch(trial: Dict) -> bool:
     return trial["trial_params"]["catch"] is True and \
