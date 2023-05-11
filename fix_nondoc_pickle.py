@@ -219,7 +219,7 @@ if __name__ == "__main__":
         if os.path.exists(args.output_dir):
             raise Exception(
                 "Output directory path exists but isnt a directory. output_dir=%s" % args.output_dir)
-        os.mkdir(args.output_dir)
+        os.makedirs(args.output_dir)
         print("Created output dir at: %s" % args.output_dir)
 
     for target_pickle in glob.glob(args.pickle_search_pattern):

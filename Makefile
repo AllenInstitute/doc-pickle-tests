@@ -22,5 +22,5 @@ check_fix_env_vars: check_search_env_vars
 
 fix_pickles:
 	docker run --network="host" \
-	-v ${PWD}/fix_nondoc_pickle.py:fix_nondoc_pickle.py \
-	python -m fix_nondoc_pickle.py ${PICKLE_SEARCH_PATTERN} ${OUTPUT_DIR}
+	-v ${PWD}/fix_nondoc_pickle.py:/fix_nondoc_pickle.py \
+	doc-pickle-tests python "/fix_nondoc_pickle.py" ${PICKLE_SEARCH_PATTERN} ${OUTPUT_DIR}
