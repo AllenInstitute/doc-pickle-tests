@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 transaction_log_path = f"{str(uuid.uuid4())}.log"
 logger.addHandler(logging.FileHandler(transaction_log_path))
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG   )
 
 def is_faux_catch(trial: Dict) -> bool:
     return trial["trial_params"]["catch"] is True and \
@@ -228,4 +228,4 @@ if __name__ == "__main__":
                 target_pickle, args.output_dir)
             logger.info("Fixed pickle saved to: %s" % fixed_pickle_path)
         except Exception as e:
-            logger.error("Failed to fix pickle. target=%s." % (target_pickle, ), exec_info=True)
+            logger.error("Failed to fix pickle. target=%s." % (target_pickle, ), exc_info=True)
