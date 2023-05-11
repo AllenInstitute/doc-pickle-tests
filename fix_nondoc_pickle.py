@@ -209,14 +209,25 @@ def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
 
 
 if __name__ == "__main__":
-    import argparse
+    import yaml
     import glob
+    import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("pickle_search_pattern", type=str)
+    parser.add_argument("target_pickle_list", type=str)
     parser.add_argument("output_dir", type=str)
 
     args = parser.parse_args()
+
+    with open(args.target_pickle_list, "r") as f:
+        output_dirs = yaml.safe_load(f)
+
+    target_pickles = []
+    for output_dir in output_dirs:
+        pickles = list(glob.glob(output_dir + "/*.behavior.pkl"))
+        if len(pickles) > 1:
+            raise Exception("More than one pickle detected in output dir: %s" % output_dir)
+        target_pickles.append(pickles[0])
 
     if not os.path.isdir(args.output_dir):
         if os.path.exists(args.output_dir):
@@ -225,7 +236,7 @@ if __name__ == "__main__":
         os.makedirs(args.output_dir)
         print("Created output dir at: %s" % args.output_dir)
 
-    for target_pickle in glob.glob(args.pickle_search_pattern):
+    for target_pickle in target_pickles:
         try:
             fixed_pickle_path = fix_behavior_pickle(
                 target_pickle, args.output_dir)
