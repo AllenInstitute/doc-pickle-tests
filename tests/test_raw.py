@@ -52,7 +52,8 @@ def test_go_trials_have_correct_event_log(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         if trial["trial_params"]["catch"] is False:
             for event in trial["events"]:
-                if event[0] in ["sham_change", "correct_reject", "false_alarm"]:  # these events should not be present
+                # these events should not be present
+                if event[0] in ["sham_change", "correct_reject", "false_alarm"]:
                     bad_trial_indices.append(trial["index"])
 
 
@@ -61,5 +62,16 @@ def test_catch_trials_have_correct_event_log(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         if trial["trial_params"]["catch"] is True:
             for event in trial["events"]:
-                if event[0] in ["change", "miss", "false_alarm"]:  # these events should not be present
+                # these events should not be present
+                if event[0] in ["change", "miss", "false_alarm", "rejection"]:
                     bad_trial_indices.append(trial["index"])
+
+
+# def test_catch_trials_have_correct_event_log(raw):
+#     bad_trial_indices = []
+#     for trial in raw["items"]["behavior"]["trial_log"]:
+#         if trial["trial_params"]["catch"] is True:
+#             for event in trial["events"]:
+#                 # these events should not be present
+#                 if event[0] in ["change", "miss", "false_alarm", "rejection"]:
+#                     bad_trial_indices.append(trial["index"])
