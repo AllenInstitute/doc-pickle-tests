@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 transaction_log_path = f"{str(uuid.uuid4())}.log"
 logger.addHandler(logging.FileHandler(transaction_log_path))
-logger.setLevel(logging.DEBUG   )
+logger.setLevel(logging.DEBUG)
+
 
 def is_faux_catch(trial: Dict) -> bool:
     return trial["trial_params"]["catch"] is True and \
@@ -21,13 +22,13 @@ def is_faux_catch(trial: Dict) -> bool:
 def is_faux_go(trial: Dict, prev_image_name: str) -> bool:
     if trial["trial_params"]["catch"] is True:
         return False
-    
+
     if len(trial["stimulus_changes"]) < 1:
         return False
 
     if trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]:
         return False
-    
+
     return trial["stimulus_changes"][0][1][0] == prev_image_name
 
 
@@ -52,7 +53,7 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
     for event in fixed["events"]:
         if event[0] == "sham_change":
             event[0] = "change"
-        elif event[0] == "correct_reject":
+        elif event[0] == "rejection":
             event[0] = "miss"
         elif event[0] == "false_alarm":
             event[0] = "hit"
@@ -62,7 +63,7 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
         else:
             pass
         fixed_events.append(event)
-    
+
     fixed["events"] = fixed_events
 
     return fixed
@@ -76,15 +77,15 @@ def fix_faux_go_trial(trial: Dict) -> Dict:
         if event[0] == "change":
             event[0] = "sham_change"
         elif event[0] == "miss":
-            event[0] = "correct_reject"
+            event[0] = "rejection"
         elif event[0] == "hit":
             event[0] = "false_alarm"
         else:
             pass
         fixed_events.append(event)
-    
+
     fixed["events"] = fixed_events
-    
+
     return fixed
 
 
@@ -167,7 +168,8 @@ def fix_trials(data: Dict) -> Dict:
     fixed_images = fix_images(fixed)
     fixed_trial_log = []
     initial_image_params = fixed["items"]["behavior"]["params"]["initial_image_params"]
-    prev_image_name = encode_image_name(initial_image_params["Image"], initial_image_params["contrast"])
+    prev_image_name = encode_image_name(
+        initial_image_params["Image"], initial_image_params["contrast"])
     for trial in fixed_images["items"]["behavior"]["trial_log"]:
         if trial["success"] is None:
             pass
@@ -184,7 +186,8 @@ def fix_trials(data: Dict) -> Dict:
         else:
             fixed_trial_log.append(trial)
 
-        if len(fixed_trial_log) > 0 and len(fixed_trial_log[-1]["stimulus_changes"]) > 0:  # in the weird situation where the first trial in a "success" is None trial
+        # in the weird situation where the first trial in a "success" is None trial
+        if len(fixed_trial_log) > 0 and len(fixed_trial_log[-1]["stimulus_changes"]) > 0:
             prev_image_name = fixed_trial_log[-1]["stimulus_changes"][0][1][0]
 
     fixed_images["items"]["behavior"]["trial_log"] = fixed_trial_log
@@ -195,7 +198,7 @@ def fix_trials(data: Dict) -> Dict:
 def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     with open(pickle_path, "rb") as f:
         data = pickle.load(f, encoding="latin1")
-    
+
     logger.info("Fixing pickle at: %s" % pickle_path)
     fixed = fix_trials(data)
 
@@ -228,11 +231,12 @@ if __name__ == "__main__":
         pattern = glob.glob(output_dir + "/*.behavior.pkl")
         pickles = list(glob.glob(output_dir + "/*.behavior.pkl"))
         if len(pickles) > 1:
-            logger.error("More than one pickle detected in output dir: %s" % output_dir)
+            logger.error(
+                "More than one pickle detected in output dir: %s" % output_dir)
         elif not len(pickles) > 0:
             logger.error("No pickles in directory: %s" % output_dir)
             continue
-        
+
         target_pickles.append(pickles[0])
 
     if not os.path.isdir(args.output_dir):
@@ -248,4 +252,5 @@ if __name__ == "__main__":
                 target_pickle, args.output_dir)
             logger.info("Fixed pickle saved to: %s" % fixed_pickle_path)
         except Exception as e:
-            logger.error("Failed to fix pickle. target=%s." % (target_pickle, ), exc_info=True)
+            logger.error("Failed to fix pickle. target=%s." %
+                         (target_pickle, ), exc_info=True)
