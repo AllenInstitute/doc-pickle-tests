@@ -75,3 +75,7 @@ def test_catch_trials_have_correct_event_log(raw):
 #                 # these events should not be present
 #                 if event[0] in ["change", "miss", "false_alarm", "rejection"]:
 #                     bad_trial_indices.append(trial["index"])
+
+
+# def test_aborts(raw):
+#     pass
