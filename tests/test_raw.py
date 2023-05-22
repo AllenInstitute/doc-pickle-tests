@@ -1,3 +1,5 @@
+import pytest
+
 from . import get_initial_image, filter_events, filter_trials, classify_licks, resolve_env_var
 
 
