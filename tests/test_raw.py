@@ -73,7 +73,7 @@ def test_abort_licks(raw):
     for trial in raw["items"]["behavior"]["trial_log"]:
         early, within = classify_licks(trial)
         abort_events = filter_events(trial, "abort")
-        if trial["index"] in [4, 25]:
+        if trial["index"] in [65, 109, 642]:
             print(trial["index"])
             print(early)
             print(abort_events)
