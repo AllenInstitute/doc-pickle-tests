@@ -75,8 +75,11 @@ def classify_licks(trial) -> tuple[list[Lick], list[Lick]]:
     licks within window
     """
     response_window_events = filter_events(trial, "response_window")
-    if not len(response_window_events) != 2:
-        raise Exception("Unexpected response window length.")
+    if not len(response_window_events) > 2:
+        abort_events = filter_events(trial, "abort")
+        if len(abort_events) < 1:
+            raise Exception("No response window but not aborted!")
+        return trial["licks"], []  #
 
     response_window_lower = response_window_events[0][2]
     response_window_upper = response_window_events[1][2]
