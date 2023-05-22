@@ -1,7 +1,7 @@
 from . import get_initial_image, filter_events, filter_trials, classify_licks, resolve_env_var
 
 
-run_lick_abort_tests = resolve_env_var("TEST_LICK_ABORT") or False
+run_lick_abort_tests = resolve_env_var("TEST_LICK_ABORT", False) or False
 
 
 def test_catch_trials_have_no_changes(raw):
