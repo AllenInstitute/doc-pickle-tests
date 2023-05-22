@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import typing
 import pandas as pd
@@ -46,3 +48,59 @@ def encode_image_name(image_name: str, contrast: int) -> str:
 def get_initial_image(data: dict) -> str:
     initial_params = data["items"]["behavior"]["params"]["initial_image_params"]
     return encode_image_name(initial_params["Image"], initial_params["contrast"])
+
+
+# __future__ import not giving me tuple?
+Event = typing.Tuple[str, str, float, int]
+
+
+def filter_events(trial: dict, name_fiter: str) -> list[Event]:
+    """Filters event in a trial log entry based on event name.
+    """
+    return [
+        event for event in trial["events"]
+        if event[0].startswith(name_fiter)
+    ]
+
+
+# __future__ import not giving me tuple?
+Lick = typing.Tuple[float, int]
+
+
+def classify_licks(trial) -> tuple[list[Lick], list[Lick]]:
+    """
+    Returns
+    -------
+    early licks
+    licks within window
+    """
+    response_window_events = filter_events(trial, "response_window")
+    if not len(response_window_events) != 2:
+        raise Exception("Unexpected response window length.")
+
+    response_window_lower = response_window_events[0][2]
+    response_window_upper = response_window_events[1][2]
+
+    early = list(filter(
+        lambda lick: lick[0] < response_window_lower,
+        trial["licks"],
+    ))
+    within_window = list(filter(
+        lambda lick: response_window_lower < lick[0] < response_window_upper,
+        trial["licks"],
+    ))
+
+    return early, within_window
+
+
+def filter_trials(behavior_dict: dict, is_catch: False) -> typing.Iterator[dict]:
+    """Filters trial log
+
+    Notes
+    -----
+    - Currently only filters based on if trial is catch or not
+    """
+    return filter(
+        lambda trial: trial["trial_params"]["catch"] == is_catch,
+        behavior_dict["items"]["behavior"]["trial_log"],
+    )
