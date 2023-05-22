@@ -211,7 +211,31 @@ def test_aborts(raw):
         f"Bad trials. Indices: {bad_trial_indices}"
 
 
+def test_abort_licks(raw):
+    """
+    trials in which the mouse licked before the change or sham-change are 
+    listed as aborts in the trial log
+    """
+    bad_trial_indices = []
+    for trial in raw["items"]["behavior"]["trial_log"]:
+        early, within = classify_licks(trial)
+        abort_events = filter_events(trial, "abort")
+        if len(early) > 0 and len(abort_events) < 1:
+            bad_trial_indices.append(trial["index"])
+
+    assert len(bad_trial_indices) < 1, \
+        f"Bad trials. Indices: {bad_trial_indices}"
+
+
 def test_non_abort_event_log(raw):
+    """
+    2) non-abort trials for which catch is True have the following response types:
+        a) no lick in the response window: miss
+        b) lick in the response window: false alarm 
+    3) non-abort trials for which catch is False:
+        a) no lick in the response window: miss
+        b) lick in the response window: hit
+    """
     bad_trial_indices = []
     for trial in raw["items"]["behavior"]["trial_log"]:
         abort_events = filter_events(trial, "abort")
