@@ -78,6 +78,7 @@ def test_abort_licks(raw):
             print(early)
             print(abort_events)
             print(len(early) > 0 and len(abort_events) < 1)
+            print(trial)
         if len(early) > 0 and len(abort_events) < 1:
             bad_trial_indices.append(trial["index"])
 
