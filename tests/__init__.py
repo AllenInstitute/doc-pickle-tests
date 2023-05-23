@@ -76,6 +76,8 @@ def is_early_lick(
     if not lick_time < response_window_lower:
         return False
 
+    # licks dont count as aborts if theyre before the response window but after
+    # the stimulus change
     if len(stimulus_change_events) > 0:
         return lick_time < stimulus_change_events[0][2]
     else:

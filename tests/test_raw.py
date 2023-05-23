@@ -1,9 +1,4 @@
-import pytest
-
-from . import get_initial_image, filter_events, filter_trials, classify_licks, resolve_env_var
-
-
-skip_lick_abort_tests = not bool(resolve_env_var("TEST_LICK_ABORT", False))
+from . import get_initial_image, filter_events, filter_trials, classify_licks
 
 
 def test_catch_trials_have_no_changes(raw):
@@ -70,10 +65,6 @@ def test_event_log(raw):
         f"Trials failing validation. Indices: {bad_trial_indices}"
 
 
-# @pytest.mark.skipif(
-#     skip_lick_abort_tests,
-#     reason="Requires this type of testing to be toggled.",
-# )
 def test_abort_licks(raw):
     """Tests that trials in which the mouse licked before the change or 
     sham-change are listed as aborts in the trial log
