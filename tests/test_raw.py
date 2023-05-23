@@ -3,7 +3,7 @@ import pytest
 from . import get_initial_image, filter_events, filter_trials, classify_licks, resolve_env_var
 
 
-run_lick_abort_tests = resolve_env_var("TEST_LICK_ABORT", False) or False
+skip_lick_abort_tests = not bool(resolve_env_var("TEST_LICK_ABORT", False))
 
 
 def test_catch_trials_have_no_changes(raw):
@@ -71,7 +71,7 @@ def test_event_log(raw):
 
 
 @pytest.mark.skipif(
-    run_lick_abort_tests,
+    skip_lick_abort_tests,
     reason="Requires this type of testing to be toggled.",
 )
 def test_abort_licks(raw):
