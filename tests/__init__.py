@@ -67,6 +67,21 @@ def filter_events(trial: dict, name_fiter: str) -> list[Event]:
 Lick = typing.Tuple[float, int]
 
 
+def is_early_lick(
+    lick: Lick,
+    response_window_lower: float,
+    stimulus_change_events: list[Event],
+) -> bool:
+    lick_time, _ = lick
+    if not lick_time < response_window_lower:
+        return False
+
+    if len(stimulus_change_events) > 0:
+        return lick_time < stimulus_change_events[0][2]
+    else:
+        return True
+
+
 def classify_licks(trial) -> tuple[list[Lick], list[Lick]]:
     """
     Returns
@@ -83,9 +98,10 @@ def classify_licks(trial) -> tuple[list[Lick], list[Lick]]:
 
     response_window_lower = response_window_events[0][2]
     response_window_upper = response_window_events[1][2]
-
+    stimulus_change_events = filter_events(trial, "stimulus_changed")
     early = list(filter(
-        lambda lick: lick[0] < response_window_lower,
+        lambda lick: is_early_lick(
+            lick, response_window_lower, stimulus_change_events),
         trial["licks"],
     ))
     within_window = list(filter(

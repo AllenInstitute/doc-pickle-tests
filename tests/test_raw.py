@@ -70,10 +70,10 @@ def test_event_log(raw):
         f"Trials failing validation. Indices: {bad_trial_indices}"
 
 
-@pytest.mark.skipif(
-    skip_lick_abort_tests,
-    reason="Requires this type of testing to be toggled.",
-)
+# @pytest.mark.skipif(
+#     skip_lick_abort_tests,
+#     reason="Requires this type of testing to be toggled.",
+# )
 def test_abort_licks(raw):
     """Tests that trials in which the mouse licked before the change or 
     sham-change are listed as aborts in the trial log
