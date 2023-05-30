@@ -14,12 +14,26 @@ logger.setLevel(logging.DEBUG)
 
 
 def is_faux_catch(trial: Dict) -> bool:
+    """Whether or not a trial is a faux catch trial
+
+    Notes
+    -----
+    - Intends to classify a trial as a "faux catch" if the trial is a catch
+    trial but the image changes to a new image
+    """
     return trial["trial_params"]["catch"] is True and \
         len(trial["stimulus_changes"]
             ) > 0 and trial["stimulus_changes"][0][0][0] != trial["stimulus_changes"][0][1][0]
 
 
 def is_faux_go(trial: Dict, prev_image_name: str) -> bool:
+    """Whether or not a trial is a faux go trial
+
+    Notes
+    -----
+    - Intends to classify a trial as a "faux go" if the trial is a go trial but
+    the image changes to the same image
+    """
     if trial["trial_params"]["catch"] is True:
         return False
 
@@ -38,6 +52,12 @@ def list_to_contiguous_pairs(l):
 
 
 def encode_image_name(image_name: str, contrast: int) -> str:
+    """Serializes image params as a string image name
+
+    Notes
+    -----
+    - Downstream code expects a string image name
+    """
     return f"{image_name}-{contrast}"
 
 
@@ -47,6 +67,15 @@ def get_initial_image(data: Dict) -> str:
 
 
 def fix_faux_catch_trial(trial: Dict) -> Dict:
+    """Fixes trials that are incorrectly classified as catch trials because the
+    image changes to a new value
+
+    Notes
+    -----
+    - Relabels these trials as go trials
+    - changes event labels in the event log to reflect what they should be 
+    for a go trial
+    """
     fixed = copy.deepcopy(trial)
     fixed["trial_params"]["catch"] = False
     fixed_events = []
@@ -70,6 +99,16 @@ def fix_faux_catch_trial(trial: Dict) -> Dict:
 
 
 def fix_faux_go_trial(trial: Dict) -> Dict:
+    """Fixes trials that are incorrectly classified as go trials because the
+    image never changes and are not aborted or the image changes to the same
+    image name
+
+    Notes
+    -----
+    - Relabels these trials as catch trials
+    - changes event labels in the event log to reflect what they should be 
+    for a catch trial
+    """
     fixed = copy.deepcopy(trial)
     fixed["trial_params"]["catch"] = True
     fixed_events = []
@@ -98,6 +137,14 @@ def overwrite_prev_image(trial: Dict, new_image: str) -> None:
 
 
 def fix_trials_initial_image(data: Dict) -> Dict:
+    """Fixes the initial image name of the stimulus change of each trial
+
+    Notes
+    -----
+    - ensures that the initial image name of each change is accurate
+    - some bad trials had the incorrect initial image name because a change
+    that was scheduled never occurred
+    """
     fixed = copy.deepcopy(data)
     prev = get_initial_image(data)
     for trial in fixed["items"]["behavior"]["trial_log"]:
