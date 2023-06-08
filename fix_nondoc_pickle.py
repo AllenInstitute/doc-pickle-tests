@@ -360,8 +360,8 @@ if __name__ == "__main__":
         try:
             fixed_pickle_path = fix_behavior_pickle(
                 target_pickle, args.output_dir)
-            logger.info("Fixed pickle saved to: %s" % target_pickle)
+            logger.info("Fixed pickle saved to: %s" % fixed_pickle_path)
         except Exception as e:
-            print("Error fixing pickle: %s" % fixed_pickle_path)
+            print("Error fixing pickle: %s" % target_pickle)
             logger.error("Failed to fix pickle. target=%s." %
                          (target_pickle, ), exc_info=True)
