@@ -362,5 +362,6 @@ if __name__ == "__main__":
                 target_pickle, args.output_dir)
             logger.info("Fixed pickle saved to: %s" % fixed_pickle_path)
         except Exception as e:
+            print(e)
             logger.error("Failed to fix pickle. target=%s." %
                          (target_pickle, ), exc_info=True)
