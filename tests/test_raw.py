@@ -180,5 +180,5 @@ def test_non_abort_go_have_change(raw):
 
 def test_no_reward_epoch(raw):
     invalid_trials = get_invalid_lick_disabled_trials(raw)
-    assert len(invalid_trials), \
+    assert len(invalid_trials) < 1, \
         f"Trials failing validation. Indices: {invalid_trials}"
