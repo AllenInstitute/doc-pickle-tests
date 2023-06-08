@@ -242,12 +242,75 @@ def fix_trials(data: Dict) -> Dict:
     return fixed_images
 
 
+def filter_events(trial: dict, name_fiter: str) -> list:
+    """Filters event in a trial log entry based on event name.
+    """
+    return [
+        event for event in trial["events"]
+        if event[0].startswith(name_fiter)
+    ]
+
+
+def lick_within_response_window(lickEvent, response_window_lower: int, response_window_upper: int):
+    return lickEvent[3] >= response_window_lower and lickEvent[3] <= response_window_upper
+
+
+def fix_lick_disabled_trial_log(log) -> None:
+    """mutates object passed in
+    """
+    if log["licks_enabled"] is True:
+        return
+
+    disabled_licks = filter_events(log, "licks disabled.")
+    response_window_events = filter_events(log, "response_window")
+    assert len(response_window_events) == 2
+
+    within_window_licks = list(filter(
+        lambda event: lick_within_response_window(
+            event,
+            response_window_events[0][3],
+            response_window_events[1][3],
+        ),
+        disabled_licks
+    ))
+
+    if not len(within_window_licks) > 0:
+        return
+
+    first_disabled_lick = within_window_licks[0]
+    # if a miss occurred relabel it as a hit
+    miss_events = filter_events(log, "miss")
+    if len(miss_events) > 0:
+        # fix event log
+        fixed_events = []
+        hit_added = False
+        for event in log["events"]:
+            if event[0].startswith("miss"):
+                continue
+
+            if event[3] == first_disabled_lick[3] and not hit_added:
+                assert event[0].startswith("licks disabled.")
+                fixed_events.append([
+                    "hit",
+                    first_disabled_lick[1],
+                    first_disabled_lick[2],
+                    first_disabled_lick[3],
+                ])
+                hit_added
+            else:
+                fixed_events.append(event)
+
+        log["events"] = fixed_events
+
+
 def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     with open(pickle_path, "rb") as f:
         data = pickle.load(f, encoding="latin1")
 
     logger.info("Fixing pickle at: %s" % pickle_path)
     fixed = fix_trials(data)
+    for log in data["items"]["behavior"]["trial_log"]:
+        fix_lick_disabled_trial_log(log)
 
     output_path = os.path.join(
         output_dir,

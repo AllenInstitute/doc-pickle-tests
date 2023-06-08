@@ -125,3 +125,36 @@ def filter_trials(behavior_dict: dict, is_catch: False) -> typing.Iterator[dict]
         lambda trial: trial["trial_params"]["catch"] == is_catch,
         behavior_dict["items"]["behavior"]["trial_log"],
     )
+
+
+def lick_within_response_window(lickEvent, response_window_lower: int, response_window_upper: int):
+    return lickEvent[3] >= response_window_lower and lickEvent[3] <= response_window_upper
+
+
+def get_invalid_lick_disabled_trials(raw):
+    invalid_indices = []
+    for log in raw["items"]["behavior"]["trial_log"]:
+        if log["licks_enabled"] is True:
+            continue
+
+        disabled_licks = filter_events(log, "licks disabled.")
+        response_window_events = filter_events(log, "response_window")
+        if not len(response_window_events) == 2:
+            continue
+
+        within_window_licks = list(filter(
+            lambda event: lick_within_response_window(
+                event,
+                response_window_events[0][3],
+                response_window_events[1][3],
+            ),
+            disabled_licks
+        ))
+
+        if not len(within_window_licks) > 0:
+            continue
+
+        if len(filter_events(log, "miss")) > 0:
+            invalid_indices.append(log["index"])
+
+    return invalid_indices

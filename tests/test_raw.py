@@ -1,4 +1,5 @@
-from . import get_initial_image, filter_events, filter_trials, classify_licks
+from . import get_initial_image, filter_events, filter_trials, classify_licks, \
+    get_invalid_lick_disabled_trials
 
 
 def test_catch_trials_have_no_changes(raw):
@@ -175,3 +176,9 @@ def test_non_abort_go_have_change(raw):
 
     assert len(bad_trial_indices) < 1, \
         f"Trials failing validation. Indices: {bad_trial_indices}"
+
+
+def test_no_reward_epoch(raw):
+    invalid_trials = get_invalid_lick_disabled_trials(raw)
+    assert len(invalid_trials), \
+        f"Trials failing validation. Indices: {invalid_trials}"
