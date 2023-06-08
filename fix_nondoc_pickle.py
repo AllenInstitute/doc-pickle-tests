@@ -263,7 +263,8 @@ def fix_lick_disabled_trial_log(log) -> None:
 
     disabled_licks = filter_events(log, "licks disabled.")
     response_window_events = filter_events(log, "response_window")
-    assert len(response_window_events) == 2
+    if not len(response_window_events) == 2:
+        return
 
     within_window_licks = list(filter(
         lambda event: lick_within_response_window(
@@ -289,14 +290,15 @@ def fix_lick_disabled_trial_log(log) -> None:
                 continue
 
             if event[3] == first_disabled_lick[3] and not hit_added:
-                assert event[0].startswith("licks disabled.")
+                if not event[0].startswith("licks disabled."):
+                    continue
                 fixed_events.append([
                     "hit",
                     first_disabled_lick[1],
                     first_disabled_lick[2],
                     first_disabled_lick[3],
                 ])
-                hit_added
+                hit_added = True
             else:
                 fixed_events.append(event)
 
