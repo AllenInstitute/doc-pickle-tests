@@ -152,6 +152,7 @@ def get_invalid_lick_disabled_trials(raw):
         ))
 
         if not len(within_window_licks) > 0:
+            print("bur: %s" % within_window_licks)
             continue
 
         if len(filter_events(log, "miss")) > 0:
