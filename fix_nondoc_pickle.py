@@ -502,7 +502,7 @@ def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
 
     logger.info("Fixing pickle at: %s" % pickle_path)
     fixed = fix_trials(data)
-    for log in data["items"]["behavior"]["trial_log"]:
+    for log in fixed["items"]["behavior"]["trial_log"]:
         fix_lick_disabled_log(log)
 
     output_path = os.path.join(
