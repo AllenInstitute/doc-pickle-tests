@@ -355,6 +355,23 @@ def fix_lick_disabled_trial_log(log) -> None:
 #         log["events"] = fixed_events
 
 
+def is_early_lick(
+    lick,
+    response_window_lower: float,
+    stimulus_change_events: list,
+) -> bool:
+    lick_time, _ = lick
+    if not lick_time < response_window_lower:
+        return False
+
+    # licks dont count as aborts if theyre before the response window but after
+    # the stimulus change
+    if len(stimulus_change_events) > 0:
+        return lick_time < stimulus_change_events[0][2]
+    else:
+        return True
+
+
 def lick_disabled_event_to_lick(event):
     assert event[0].startswith("licks disabled."), \
         f"Unexpected event name: {event[0]}"
