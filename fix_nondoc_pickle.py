@@ -305,6 +305,178 @@ def fix_lick_disabled_trial_log(log) -> None:
         log["events"] = fixed_events
 
 
+# def fix_lick_disabled_trial_log(log) -> None:
+#     """mutates object passed in
+#     """
+#     if log["licks_enabled"] is True:
+#         return
+
+#     disabled_licks = filter_events(log, "licks disabled.")
+#     response_window_events = filter_events(log, "response_window")
+#     if not len(response_window_events) == 2:
+#         return
+
+#     within_window_licks = list(filter(
+#         lambda event: lick_within_response_window(
+#             event,
+#             response_window_events[0][3],
+#             response_window_events[1][3],
+#         ),
+#         disabled_licks
+#     ))
+
+#     if not len(within_window_licks) > 0:
+#         return
+
+#     first_disabled_lick = within_window_licks[0]
+#     # if a miss occurred relabel it as a hit
+#     miss_events = filter_events(log, "miss")
+#     if len(miss_events) > 0:
+#         # fix event log
+#         fixed_events = []
+#         hit_added = False
+#         for event in log["events"]:
+#             if event[0].startswith("miss"):
+#                 continue
+
+#             if event[3] == first_disabled_lick[3] and not hit_added:
+#                 if not event[0].startswith("licks disabled."):
+#                     continue
+#                 fixed_events.append([
+#                     "hit",
+#                     first_disabled_lick[1],
+#                     first_disabled_lick[2],
+#                     first_disabled_lick[3],
+#                 ])
+#                 hit_added = True
+#             else:
+#                 fixed_events.append(event)
+
+#         log["events"] = fixed_events
+
+
+def lick_disabled_event_to_lick(event):
+    assert event[0].startswith("licks disabled."), \
+        f"Unexpected event name: {event[0]}"
+    return event[2], event[3]
+
+
+def classify_licks_no_reward_epoch(trial):
+    """licks arent populated for "no_reward", they also have wierd event names
+    """
+    response_window_events = filter_events(trial, "response_window")
+    lick_events = filter_events(trial, "licks disabled.")
+    licks = list(map(lick_disabled_event_to_lick, lick_events))
+
+    if len(response_window_events) < 2:
+        abort_events = filter_events(trial, "abort")
+        if len(abort_events) < 1:
+            raise Exception("No response window but not aborted!")
+        return licks, []
+
+    response_window_lower = response_window_events[0][2]
+    response_window_upper = response_window_events[1][2]
+    stimulus_change_events = filter_events(trial, "stimulus_changed")
+    early = list(filter(
+        lambda lick: is_early_lick(
+            lick, response_window_lower, stimulus_change_events),
+        licks,
+    ))
+    within_window = list(filter(
+        lambda lick: response_window_lower < lick[0] < response_window_upper,
+        licks,
+    ))
+
+    return early, within_window
+
+
+def fix_no_reward_catch(log):
+    early, within_window = \
+        classify_licks_no_reward_epoch(log)
+
+    if len(early) > 0:
+        new_event_name = "early_response"
+        lick_time, _ = early[0]
+    elif len(within_window) > 0:
+        new_event_name = "false_alarm"
+        lick_time, _ = within_window[0]
+    else:
+        return
+
+    fixed = []
+    added_early_response = False
+    for event in log["events"]:
+        if event[0].startswith("licks disabled.") and \
+                not added_early_response:
+            fixed.append(event)
+            fixed.append([
+                new_event_name,
+                event[1],
+                event[2],
+                event[3],
+            ])
+            added_early_response = True
+        elif event[0].startswith("rejection"):
+            pass
+        else:
+            fixed.append(event)
+    log["events"] = fixed
+
+
+def fix_no_reward_go(log):
+    early, within_window = \
+        classify_licks_no_reward_epoch(log)
+
+    if len(early) > 0:
+        new_event_name = "early_response"
+        lick_time, _ = early[0]
+    elif len(within_window) > 0:
+        new_event_name = "hit"
+        lick_time, _ = within_window[0]
+    else:
+        return
+
+    fixed = []
+    added_early_response = False
+    for event in log["events"]:
+        if event[0].startswith("licks disabled.") and \
+                not added_early_response:
+            fixed.append(event)
+            fixed.append([
+                new_event_name,
+                event[1],
+                event[2],
+                event[3],
+            ])
+            added_early_response = True
+        elif event[0].startswith("miss"):
+            pass
+        else:
+            fixed.append(event)
+    log["events"] = fixed
+
+
+def fix_lick_disabled_log(log):
+    if log["licks_enabled"]:
+        return
+
+    is_catch = log["trial_params"]["catch"]
+    if is_catch is True:
+        rejection_events = filter_events(log, "rejection")
+        if len(rejection_events) < 1:
+            return
+
+        fix_no_reward_catch(log)
+    elif is_catch is False:
+        miss_events = filter_events(log, "miss")
+        if len(miss_events) < 1:
+            return
+
+        fix_no_reward_go(log)
+    else:
+        raise Exception("Unexpected value for is_catch: %s" % is_catch)
+
+
 def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     with open(pickle_path, "rb") as f:
         data = pickle.load(f, encoding="latin1")
@@ -312,7 +484,7 @@ def fix_behavior_pickle(pickle_path: str, output_dir: str) -> str:
     logger.info("Fixing pickle at: %s" % pickle_path)
     fixed = fix_trials(data)
     for log in data["items"]["behavior"]["trial_log"]:
-        fix_lick_disabled_trial_log(log)
+        fix_lick_disabled_log(log)
 
     output_path = os.path.join(
         output_dir,
