@@ -128,7 +128,7 @@ def filter_trials(behavior_dict: dict, is_catch: False) -> typing.Iterator[dict]
 
 
 def lick_within_response_window(lickEvent, response_window_lower: int, response_window_upper: int):
-    return lickEvent[3] >= response_window_lower and lickEvent[3] <= response_window_upper
+    return lickEvent[3] >= response_window_lower and lickEvent[3] < response_window_upper
 
 
 def get_invalid_lick_disabled_trials(raw):
@@ -152,7 +152,6 @@ def get_invalid_lick_disabled_trials(raw):
         ))
 
         if not len(within_window_licks) > 0:
-            print("bur: %s" % within_window_licks)
             continue
 
         if len(filter_events(log, "miss")) > 0:
