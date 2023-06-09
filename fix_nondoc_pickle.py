@@ -424,6 +424,7 @@ def fix_no_reward_catch(log):
     added_early_response = False
     for event in log["events"]:
         if event[0].startswith("licks disabled.") and \
+                and event[2] == lick_time and \
                 not added_early_response:
             fixed.append(event)
             fixed.append([
@@ -457,6 +458,7 @@ def fix_no_reward_go(log):
     added_early_response = False
     for event in log["events"]:
         if event[0].startswith("licks disabled.") and \
+                event[2] == lick_time and \
                 not added_early_response:
             fixed.append(event)
             fixed.append([
